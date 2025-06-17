@@ -21,6 +21,7 @@ add_shortcode('address-popup', function(){
       <p>Start typing your address to see delivery options.</p>
 
       <div class="input-wrapper">
+      <span class="location-icon"> <img src="https://www.jiomart.com/assets/ds2web/jds-icons/location-gray-icon.svg" alt=""> </span>
         <input id="address_input" type="text" placeholder="Enter your address">
         <ul id="address_suggestions" class="suggestion-list" style="list-style: none; padding: 0;margin-bottom:15px;border:1px solid #ccc;background:#fff;color:#000;"></ul>
         <button id="address_submit">Save</button>
@@ -145,6 +146,13 @@ add_shortcode('address-popup', function(){
     }
     .suggestion-list li:hover {
       background: #f5f5f5;
+    }
+    .location-icon {
+      position: absolute;
+      left: 10px; 
+      top: 21px; 
+      transform: translateY(-50%); 
+      font-size: 18px;
     }
   </style>
   <?php
