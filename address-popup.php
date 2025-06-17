@@ -29,54 +29,56 @@ add_shortcode('address-popup', function(){
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded',(function(){
-      if (document.cookie.indexOf('address')===-1){
-        document.getElementById('address-popup').style.display='flex';
-      } else {
-        document.getElementById('address-popup').style.display='none';
-      }
+ document.addEventListener('DOMContentLoaded',(function(){
+  if (document.cookie.indexOf('address')===-1){
+    document.getElementById('address-popup').style.display='flex';
+  } else {
+    document.getElementById('address-popup').style.display='none';
+  }
 
-      const input = document.getElementById('address_input');
-      const suggestions = document.getElementById('address_suggestions');
-      let selected = '';
-      
-      input.addEventListener('input',(e)=>{
-        const query = e.target.value.trim();
-        if (query.length < 3) return;
+  const input = document.getElementById('address_input');
+  const suggestions = document.getElementById('address_suggestions');
+  let selected = '';
+  
+  input.addEventListener('input',(e)=>{
+    const query = e.target.value.trim();
+    if (query.length < 3) return;
 
-        fetch('https://jioeat.in/server.php?action=fetch-places&input=' + encodeURIComponent(query))
-          .then(r => r.json()) 
-          .then(data => {
-            suggestions.innerHTML = '';
-            if (data.success && data.data && data.data.data.length) {
-              data.data.data.slice(0,5).forEach((item) => {
-                  const li = document.createElement('li');
-                  li.textContent = item.description;
-                  li.dataset.placeId = item.place_id;
-                  li.onclick = () => {
-                    selected = item.description;
-                    input.value = selected;
-                    suggestions.innerHTML = '';
-                  };
-                  suggestions.appendChild(li);
-              });
-            }
-          });
+    fetch('https://ajdui8.in/demo2/wp-content/plugins/address-popup/fetch-places.php?input=' + encodeURIComponent(query) + '&lat=12.9716&lng=77.5946')
+  .then(r => r.json()) 
+  .then(data => {
+    console.log(data);
+    suggestions.innerHTML = '';
+    if (data && data.data && data.data.length) {
+      data.data.slice(0, 5).forEach((item) => {
+        const li = document.createElement('li');
+        li.textContent = item.description;
+        li.dataset.placeId = item.place_id;
+        li.onclick = () => {
+          selected = item.description;
+          input.value = selected;
+          suggestions.innerHTML = '';
+        };
+        suggestions.appendChild(li);
       });
+    }
+  })
+  .catch(error => console.error(error));
 
-      document.getElementById('address_submit').addEventListener('click',(e)=>{
-        e.preventDefault();
+  });
 
-        if (selected.length > 0) {
-          document.cookie = "address=" + encodeURIComponent(selected) + ";path=/;max-age=2592000";
-          document.getElementById('address-popup').style.display='none';
-          location.reload();
-        } else {
-          alert('Please select an address.');
-        }
-      });
-    }));
+  document.getElementById('address_submit').addEventListener('click',(e)=>{
+    e.preventDefault();
 
+    if (selected.length > 0) {
+      document.cookie = "address=" + encodeURIComponent(selected) + ";path=/;max-age=2592000";
+      document.getElementById('address-popup').style.display='none';
+      location.reload();
+    } else {
+      alert('Please select an address.');
+    }
+  });
+}))
   </script>
 
   <style>
