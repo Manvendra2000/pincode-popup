@@ -98,8 +98,8 @@ add_shortcode('address-popup', function(){
       color: #000;
       padding: 30px 20px;
       border-radius: 20px;
-      width: 300px;
-      text-align: center;
+      width: 500px;
+      /* text-align: center; */
       box-shadow: 0 4px 14px rgb(0 0 0 / 0.5);
       margin: 130px 0 0 50px;
     }

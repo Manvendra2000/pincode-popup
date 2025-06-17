@@ -28,18 +28,18 @@ $server = $server_urls[$nextIndex];
 $url = $server . "/server.php";
 
 $data = [
-    "url" => "https://www.swiggy.com/dapi/misc/place-autocomplete",
+    "url"   => "https://www.swiggy.com/dapi/misc/place-autocomplete",
     "input" => $input,
-    "lat" => $lat,
-    "lng" => $lng,
+    "lat"   => $lat,
+    "lng"   => $lng,
 ];
 
 // Perform a GET request through server.php
 $query = http_build_query([
-    "url" => $data['url'], 
+    "url"   => $data['url'], 
     "input" => $input, 
-    "lat" => $lat, 
-    "lng" => $lng
+    "lat"   => $lat, 
+    "lng"   => $lng,
 ]);
 
 $fullURL = $url . "?" . $query;
@@ -67,6 +67,8 @@ if (file_exists($counter_file)) {
 $counts[$server] = ($counts[$server] ?? 0) + 1;
 
 file_put_contents($counter_file, json_encode($counts, JSON_PRETTY_PRINT));
+
+header("Access-Control-Allow-Origin: *");
 
 echo $response;
 
