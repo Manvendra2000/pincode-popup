@@ -1,28 +1,73 @@
 <?php
 header('Content-Type: application/json');
 
-// Get input
+// Include server URLs
+include('servers-config.php'); // This should define $server_urls array
+
 $input = $_GET['input'] ?? '';
 $lat = $_GET['lat'] ?? '';
 $lng = $_GET['lng'] ?? '';
-if ($input == '') {
-    echo json_encode(['error' => 'input missing']);
+
+// Validate
+if (empty($input) || empty($lat) || empty($lng)) {
+    echo json_encode(['error' => 'Missing parameters']);
+    http_response_code(400);
     exit;
 }
 
-$apiURL = "https://www.swiggy.com/dapi/misc/place-autocomplete?input=" . urlencode($input) . "&lat=" . $lat . "&lng=" . $lng;
+$indexFile = __DIR__ . '/rotate-index.txt';
+$lastIndex = file_exists($indexFile) ? (int)file_get_contents($indexFile) : -1;
 
-// Initialize cURL
-$ch = curl_init($apiURL);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)', // pretend we are a real browser
+// Calculate the next server in a round-robin manner
+$nextIndex = ($lastIndex + 1) % count($server_urls);
+file_put_contents($indexFile, $nextIndex);
+
+$server = $server_urls[$nextIndex];
+
+// Forward request through the server's proxy script
+$url = $server . "/server.php";
+
+$data = [
+    "url" => "https://www.swiggy.com/dapi/misc/place-autocomplete",
+    "input" => $input,
+    "lat" => $lat,
+    "lng" => $lng,
+];
+
+// Perform a GET request through server.php
+$query = http_build_query([
+    "url" => $data['url'], 
+    "input" => $input, 
+    "lat" => $lat, 
+    "lng" => $lng
 ]);
 
-$response = curl_exec($ch);
-curl_close($ch);
+$fullURL = $url . "?" . $query;
 
-header('Content-Type: application/json'); // make sure we respond in proper format
+// Fetch response
+$response = file_get_contents($fullURL);
+
+if ($response === false) {
+    echo json_encode(['error' => 'Unable to fetch from Swiggy API through server']);
+    http_response_code(502);
+    exit;
+}
+
+$counter_file = __DIR__ . "/servers_count.json";
+
+$counts = [];
+
+if (file_exists($counter_file)) {
+    $counts = json_decode(file_get_contents($counter_file), true);
+    if (!is_array($counts)) {
+        $counts = []; // fallback if invalid
+    }
+}
+
+$counts[$server] = ($counts[$server] ?? 0) + 1;
+
+file_put_contents($counter_file, json_encode($counts, JSON_PRETTY_PRINT));
+
 echo $response;
+
 ?>
