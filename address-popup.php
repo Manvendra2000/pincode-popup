@@ -13,6 +13,7 @@ add_shortcode('address-popup', function(){
       return '';
   }
 
+
   ob_start();
   ?>
   <div id="address-popup">
@@ -158,3 +159,32 @@ add_shortcode('address-popup', function(){
   <?php
   return ob_get_clean();
 });
+
+
+add_action('pre_get_posts', 'filter_products_by_user_state_from_cookie');
+function filter_products_by_user_state_from_cookie($query) {
+    if (is_admin() || !$query->is_main_query()) return;
+
+    if (!is_post_type_archive('product') && !is_tax('product_cat')) return;
+
+    if (!isset($_COOKIE['address'])) return;
+
+    $address = sanitize_text_field(urldecode($_COOKIE['address']));
+    $parts = explode(',', $address);
+
+    // Safely get second last item as state (e.g., 'Rajasthan' from 'Kota, Rajasthan, India')
+    $state = trim($parts[count($parts) - 2] ?? '');
+
+    if (empty($state)) return;
+
+    $tax_query = $query->get('tax_query') ?: [];
+
+    $tax_query[] = array(
+        'taxonomy' => 'product_cat',
+        'field'    => 'name',
+        'terms'    => $state,
+        'operator' => 'IN',
+    );
+
+    $query->set('tax_query', $tax_query);
+}
