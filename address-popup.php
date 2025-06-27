@@ -169,10 +169,15 @@ function filter_products_by_user_state_from_cookie($query) {
 
     if (!isset($_COOKIE['address'])) return;
 
+    // Get current queried category
+    $queried_object = get_queried_object();
+    $current_category = isset($queried_object->name) ? strtolower($queried_object->name) : '';
+
+    // Only filter if main category is Milk or Curd and Yogurt
+    if (!in_array($current_category, ['milk', 'curd and yogurt'])) return;
+
     $address = sanitize_text_field(urldecode($_COOKIE['address']));
     $parts = explode(',', $address);
-
-    // Safely get second last item as state (e.g., 'Rajasthan' from 'Kota, Rajasthan, India')
     $state = trim($parts[count($parts) - 2] ?? '');
 
     if (empty($state)) return;
