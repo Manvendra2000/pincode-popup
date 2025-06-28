@@ -195,16 +195,35 @@ function filter_products_by_user_state_from_cookie($query) {
 }
 
 
+
+
 add_shortcode('delivery_eta_box', function() {
   if (!isset($_COOKIE['address'])) return '';
 
   $address = sanitize_text_field(urldecode($_COOKIE['address']));
   $parts = explode(',', $address);
-  $zip = trim($parts[0] ?? '');
-  $city = trim($parts[1] ?? '');
 
-  // Generate random delivery time between 15 and 30 minutes
+  $city = trim($parts[0] ?? '');
+  $state = trim($parts[1] ?? '');
+
+  $pin = '';
+  if ($city) {
+      $response = wp_remote_get("http://www.postalpincode.in/api/postoffice/" . urlencode($city));
+      if (!is_wp_error($response)) {
+          $data = json_decode(wp_remote_retrieve_body($response), true);
+          if ($data['Status'] === 'Success' && !empty($data['PostOffice'])) {
+              foreach ($data['PostOffice'] as $office) {
+                  if (isset($office['State']) && strtolower($office['State']) === strtolower($state)) {
+                      $pin = $office['PINCode'];
+                      break;
+                  }
+              }
+          }
+      }
+  }
+
   $eta = rand(15, 30);
+  $location = $pin ? "$pin, $city" : $city;
 
   return '<div style="
       background: #f2f2f2;
@@ -216,6 +235,6 @@ add_shortcode('delivery_eta_box', function() {
       text-align: center;
   ">
       🚚 Get it in ' . $eta . ' mins<br>
-      <strong>' . esc_html($zip) . ', ' . esc_html($city) . '</strong>
+      <strong>' . esc_html($location) . '</strong>
   </div>';
 });
