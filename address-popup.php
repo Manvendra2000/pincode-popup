@@ -225,16 +225,18 @@ add_shortcode('delivery_eta_box', function() {
   $eta = rand(15, 30);
   $location = $pin ? "$pin, $city" : $city;
 
-  return '<div style="
-      background: #f2f2f2;
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 13px;
-      color: #000;
-      display: inline-block;
-      text-align: center;
-  ">
-      🚚 Get it in ' . $eta . ' mins<br>
-      <strong>' . esc_html($location) . '</strong>
-  </div>';
+return '<div style="
+  align-items: center;
+  background: #f2f2f2;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #000;
+  width: fit-content;
+  font-weight: 500;
+  line-height: 20px;
+">
+  🚚 Get it in ' . $eta . ' mins<br>
+  <strong>' . esc_html($location) . '</strong>
+</div>';
 });
