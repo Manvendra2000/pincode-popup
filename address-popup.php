@@ -193,3 +193,29 @@ function filter_products_by_user_state_from_cookie($query) {
 
     $query->set('tax_query', $tax_query);
 }
+
+
+add_shortcode('delivery_eta_box', function() {
+  if (!isset($_COOKIE['address'])) return '';
+
+  $address = sanitize_text_field(urldecode($_COOKIE['address']));
+  $parts = explode(',', $address);
+  $zip = trim($parts[0] ?? '');
+  $city = trim($parts[1] ?? '');
+
+  // Generate random delivery time between 15 and 30 minutes
+  $eta = rand(15, 30);
+
+  return '<div style="
+      background: #f2f2f2;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #000;
+      display: inline-block;
+      text-align: center;
+  ">
+      🚚 Get it in ' . $eta . ' mins<br>
+      <strong>' . esc_html($zip) . ', ' . esc_html($city) . '</strong>
+  </div>';
+});
