@@ -155,6 +155,11 @@ add_shortcode('address-popup', function(){
       transform: translateY(-50%); 
       font-size: 18px;
     }
+    @media (max-width: 475px) {
+      .address-box{
+        margin: 40% 10px 0 10px;
+      }
+    }
   </style>
   <?php
   return ob_get_clean();
